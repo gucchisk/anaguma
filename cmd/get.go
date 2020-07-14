@@ -21,53 +21,47 @@ import (
 	"log"
 	"github.com/dgraph-io/badger"
 	"github.com/spf13/cobra"
+	"github.com/gucchisk/anaguma/db"
 )
 
-// keysCmd represents the keys command
-var keysCmd = &cobra.Command{
-	Use:   "keys <dir>",
-	Short: "Show keys",
-	Long: "Show keys",
+// getCmd represents the get command
+var getCmd = &cobra.Command{
+	Use:   "get <key> <dir>",
+	Short: "Get value of key",
+	Long: "Get value of key",
 	Args: func(cmd *cobra.Command, args []string) error {
-		if len(args) < 1 {
-			return errors.New("require badger DB dir")
+		if len(args) < 2 {
+			return errors.New("require key & badger DB dir")
 		}
 		return nil;
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		dir := args[0]
-		fmt.Printf("badger DB dir: %s\n", dir)
-		db, err := badger.Open(badger.DefaultOptions(dir))
+		err := db.View(args[1], func(txn *badger.Txn) error {
+			item, err := txn.Get([]byte(args[0]))
+			if err != nil {
+				return err
+			}
+			return item.Value(func(val []byte) error {
+				fmt.Printf("%v\n", val)
+				return nil
+			})
+		})
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer db.Close()
-
-		err = db.View(func(txn *badger.Txn) error {
-			opts := badger.DefaultIteratorOptions
-			opts.PrefetchSize = 10
-			it := txn.NewIterator(opts)
-			defer it.Close()
-			for it.Rewind(); it.Valid(); it.Next() {
-				item := it.Item()
-				k := item.Key()
-				fmt.Printf("%s\n", k)
-			}
-			return nil
-		})
 	},
 }
 
 func init() {
-	rootCmd.AddCommand(keysCmd)
+	rootCmd.AddCommand(getCmd)
 
 	// Here you will define your flags and configuration settings.
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:
-	// keysCmd.PersistentFlags().String("foo", "", "A help for foo")
+	// getCmd.PersistentFlags().String("foo", "", "A help for foo")
 
 	// Cobra supports local flags which will only run when this command
 	// is called directly, e.g.:
-	// keysCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	// getCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 }
