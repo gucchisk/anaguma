@@ -36,6 +36,7 @@ var valuesCmd = &cobra.Command{
 		return nil;
 	},
 	Run: func(cmd *cobra.Command, args []string) {
+		fmt.Printf("outformat: %s\n", out)
 		err := db.View(args[0], func(txn *badger.Txn) error {
 			opts := badger.DefaultIteratorOptions
 			opts.PrefetchSize = 10
@@ -43,9 +44,10 @@ var valuesCmd = &cobra.Command{
 			defer it.Close()
 			for it.Rewind(); it.Valid(); it.Next() {
 				item := it.Item()
-				k := item.Key()
+				key := byteToStr(item.Key(), out)
 				err := item.Value(func(v []byte) error {
-					fmt.Printf("-----\nkey: %v %s\nvalue: %v %s\n", k, k, v, v)
+					value := byteToStr(v, out)
+					fmt.Printf("-----\nkey: %s\nvalue: %s\n", key, value)
 					return nil
 				})
 				if err != nil {

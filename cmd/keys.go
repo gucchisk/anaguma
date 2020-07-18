@@ -50,8 +50,8 @@ var keysCmd = &cobra.Command{
 			defer it.Close()
 			for it.Rewind(); it.Valid(); it.Next() {
 				item := it.Item()
-				k := item.Key()
-				fmt.Printf("%s\n", k)
+				key := byteToStr(item.Key(), out)
+				fmt.Printf("%s\n", key)
 			}
 			return nil
 		})

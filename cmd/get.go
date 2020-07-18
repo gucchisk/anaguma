@@ -24,6 +24,8 @@ import (
 	"github.com/gucchisk/anaguma/db"
 )
 
+var in string
+
 // getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get <key> <dir>",
@@ -37,12 +39,17 @@ var getCmd = &cobra.Command{
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := db.View(args[1], func(txn *badger.Txn) error {
-			item, err := txn.Get([]byte(args[0]))
+			key, err := strToByte(args[0], in)
 			if err != nil {
 				return err
 			}
-			return item.Value(func(val []byte) error {
-				fmt.Printf("%v\n", val)
+			item, err := txn.Get(key)
+			if err != nil {
+				return err
+			}
+			return item.Value(func(v []byte) error {
+				value := byteToStr(v, out)
+				fmt.Printf("%s\n", value)
 				return nil
 			})
 		})
@@ -56,6 +63,7 @@ func init() {
 	rootCmd.AddCommand(getCmd)
 
 	// Here you will define your flags and configuration settings.
+	getCmd.Flags().StringVarP(&in, "in", "i", "ascii", "input key format")
 
 	// Cobra supports Persistent Flags which will work for this command
 	// and all subcommands, e.g.:

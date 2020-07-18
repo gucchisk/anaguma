@@ -17,11 +17,12 @@ package cmd
 
 import (
 	"fmt"
-	"github.com/spf13/cobra"
 	"os"
+	"github.com/gucchisk/bytestring"
+	"github.com/spf13/cobra"
 )
 
-var cfgFile string
+var out string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -47,7 +48,34 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
+	rootCmd.PersistentFlags().StringVarP(&out, "out", "o", "ascii", "output format")
 }
 
 func initialize() {
+}
+
+func byteToStr(b []byte, out string) string {
+	bytes := bytestring.NewBytes(b)
+	switch out {
+	case "hex":
+		return bytes.HexString()
+	case "base64":
+		return bytes.Base64()
+	default:
+		return bytes.String()
+	}
+}
+
+func strToByte(s string, in string) ([]byte, error) {
+	var b bytestring.Bytes
+	var err error
+	switch in {
+	case "hex":
+		b, err = bytestring.NewBytesFrom(s, bytestring.Hex)
+	case "base64":
+		b, err = bytestring.NewBytesFrom(s, bytestring.Base64)
+	default:
+		b, err = bytestring.NewBytesFrom(s, bytestring.Normal)
+	}
+	return b.ByteArray(), err
 }
