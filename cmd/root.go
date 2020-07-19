@@ -18,12 +18,13 @@ package cmd
 import (
 	"fmt"
 	"os"
-	"github.com/gucchisk/bytestring"
 	"github.com/spf13/cobra"
+	"github.com/gucchisk/anaguma/common"
 )
 
 var out string
-var outputFormat Format
+var outputFormat common.Format
+var badgerVersion uint8
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -51,58 +52,8 @@ func init() {
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.PersistentFlags().StringVarP(&out, "out", "o", "ascii", "output format [ascii hex base64]")
+	rootCmd.PersistentFlags().Uint8VarP(&badgerVersion, "version", "v", 1, "badger version [1, 2]")
 }
 
 func initialize() {
-}
-
-type Format int
-const (
-	Unknown Format = iota
-	Ascii
-	Hex
-	Base64
-)
-
-func NewFormat(format string) (Format, error) {
-	switch format {
-	case "ascii":
-		return Ascii, nil
-	case "hex":
-		return Hex, nil
-	case "base64":
-		return Base64, nil
-	default:
-		return Unknown, fmt.Errorf("unknown format: %s", format)
-	}
-}
-
-func byteToStr(b []byte, out Format) string {
-	bytes := bytestring.NewBytes(b)
-	switch out {
-	case Ascii:
-		return bytes.String()
-	case Hex:
-		return bytes.HexString()
-	case Base64:
-		return bytes.Base64()
-	default:
-		return ""
-	}
-}
-
-func strToByte(s string, in Format) ([]byte, error) {
-	var b bytestring.Bytes
-	var err error
-	switch in {
-	case Ascii:
-		b, err = bytestring.NewBytesFrom(s, bytestring.Normal)
-	case Hex:
-		b, err = bytestring.NewBytesFrom(s, bytestring.Hex)
-	case Base64:
-		b, err = bytestring.NewBytesFrom(s, bytestring.Base64)
-	default:
-		return []byte{}, fmt.Errorf("unknown format")
-	}
-	return b.ByteArray(), err
 }

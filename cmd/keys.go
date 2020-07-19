@@ -19,8 +19,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"github.com/dgraph-io/badger"
 	"github.com/spf13/cobra"
+	"github.com/gucchisk/anaguma/common"
+	"github.com/gucchisk/anaguma/db"
 )
 
 // keysCmd represents the keys command
@@ -33,33 +34,22 @@ var keysCmd = &cobra.Command{
 			return errors.New("require badger DB dir")
 		}
 		var err error
-		outputFormat, err = NewFormat(out)
+		outputFormat, err = common.NewFormat(out)
 		if err != nil {
 			return err
 		}
 		return nil;
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		dir := args[0]
-		// fmt.Printf("badger DB dir: %s\n", dir)
-		db, err := badger.Open(badger.DefaultOptions(dir))
+		err := db.Keys(args[0], func(keys [][]byte) {
+			for _, v := range keys {
+				value := common.ByteToStr(v, outputFormat)
+				fmt.Printf("%v\n", value)
+			}
+		})
 		if err != nil {
 			log.Fatal(err)
 		}
-		defer db.Close()
-
-		err = db.View(func(txn *badger.Txn) error {
-			opts := badger.DefaultIteratorOptions
-			opts.PrefetchSize = 10
-			it := txn.NewIterator(opts)
-			defer it.Close()
-			for it.Rewind(); it.Valid(); it.Next() {
-				item := it.Item()
-				key := byteToStr(item.Key(), outputFormat)
-				fmt.Printf("%s\n", key)
-			}
-			return nil
-		})
 	},
 }
 

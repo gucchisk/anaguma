@@ -19,13 +19,14 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"github.com/dgraph-io/badger"
+	// "github.com/dgraph-io/badger"
 	"github.com/spf13/cobra"
 	"github.com/gucchisk/anaguma/db"
+	"github.com/gucchisk/anaguma/common"
 )
 
 var in string
-var inputFormat Format
+var inputFormat common.Format
 
 // getCmd represents the get command
 var getCmd = &cobra.Command{
@@ -37,31 +38,24 @@ var getCmd = &cobra.Command{
 			return errors.New("require key & badger DB dir")
 		}
 		var err error
-		outputFormat, err = NewFormat(out)
+		outputFormat, err = common.NewFormat(out)
 		if err != nil {
 			return err
 		}
-		inputFormat, err = NewFormat(in)
+		inputFormat, err = common.NewFormat(in)
 		if err != nil {
 			return err
 		}
 		return nil;
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		err := db.View(args[1], func(txn *badger.Txn) error {
-			key, err := strToByte(args[0], inputFormat)
-			if err != nil {
-				return err
-			}
-			item, err := txn.Get(key)
-			if err != nil {
-				return err
-			}
-			return item.Value(func(v []byte) error {
-				value := byteToStr(v, outputFormat)
-				fmt.Printf("%s\n", value)
-				return nil
-			})
+		key, err := common.StrToByte(args[0], inputFormat)
+		if err != nil {
+			log.Fatal(err)
+		}
+		err = db.Get(args[1], key, func(value []byte) error {
+			fmt.Printf("%s\n", common.ByteToStr(value, outputFormat))
+			return nil
 		})
 		if err != nil {
 			log.Fatal(err)

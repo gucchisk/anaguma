@@ -19,9 +19,9 @@ import (
 	"errors"
 	"fmt"
 	"log"
-	"github.com/dgraph-io/badger"
 	"github.com/spf13/cobra"
 	"github.com/gucchisk/anaguma/db"
+	"github.com/gucchisk/anaguma/common"
 )
 
 // valuesCmd represents the values command
@@ -34,32 +34,19 @@ var valuesCmd = &cobra.Command{
 			return errors.New("require badger DB dir")
 		}
 		var err error
-		outputFormat, err = NewFormat(out)
+		outputFormat, err = common.NewFormat(out)
 		if err != nil {
 			return err
 		}
 		return nil;
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Printf("outformat: %s\n", out)
-		err := db.View(args[0], func(txn *badger.Txn) error {
-			opts := badger.DefaultIteratorOptions
-			opts.PrefetchSize = 10
-			it := txn.NewIterator(opts)
-			defer it.Close()
-			for it.Rewind(); it.Valid(); it.Next() {
-				item := it.Item()
-				key := byteToStr(item.Key(), outputFormat)
-				err := item.Value(func(v []byte) error {
-					value := byteToStr(v, outputFormat)
-					fmt.Printf("-----\nkey: %s\nvalue: %s\n", key, value)
-					return nil
-				})
-				if err != nil {
-					return err
-				}
+		err := db.Values(args[0], func(keys, values [][]byte) {
+			for i, k := range keys {
+				key := common.ByteToStr(k, outputFormat)
+				value := common.ByteToStr(values[i], outputFormat)
+				fmt.Printf("----------\nkey: %s\nvalue: %s\n", key, value)
 			}
-			return nil
 		})
 		if err != nil {
 			log.Fatal(err)
