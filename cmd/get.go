@@ -25,6 +25,7 @@ import (
 )
 
 var in string
+var inputFormat Format
 
 // getCmd represents the get command
 var getCmd = &cobra.Command{
@@ -35,11 +36,20 @@ var getCmd = &cobra.Command{
 		if len(args) < 2 {
 			return errors.New("require key & badger DB dir")
 		}
+		var err error
+		outputFormat, err = NewFormat(out)
+		if err != nil {
+			return err
+		}
+		inputFormat, err = NewFormat(in)
+		if err != nil {
+			return err
+		}
 		return nil;
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		err := db.View(args[1], func(txn *badger.Txn) error {
-			key, err := strToByte(args[0], in)
+			key, err := strToByte(args[0], inputFormat)
 			if err != nil {
 				return err
 			}
@@ -48,7 +58,7 @@ var getCmd = &cobra.Command{
 				return err
 			}
 			return item.Value(func(v []byte) error {
-				value := byteToStr(v, out)
+				value := byteToStr(v, outputFormat)
 				fmt.Printf("%s\n", value)
 				return nil
 			})

@@ -32,11 +32,16 @@ var keysCmd = &cobra.Command{
 		if len(args) < 1 {
 			return errors.New("require badger DB dir")
 		}
+		var err error
+		outputFormat, err = NewFormat(out)
+		if err != nil {
+			return err
+		}
 		return nil;
 	},
 	Run: func(cmd *cobra.Command, args []string) {
 		dir := args[0]
-		fmt.Printf("badger DB dir: %s\n", dir)
+		// fmt.Printf("badger DB dir: %s\n", dir)
 		db, err := badger.Open(badger.DefaultOptions(dir))
 		if err != nil {
 			log.Fatal(err)
@@ -50,7 +55,7 @@ var keysCmd = &cobra.Command{
 			defer it.Close()
 			for it.Rewind(); it.Valid(); it.Next() {
 				item := it.Item()
-				key := byteToStr(item.Key(), out)
+				key := byteToStr(item.Key(), outputFormat)
 				fmt.Printf("%s\n", key)
 			}
 			return nil

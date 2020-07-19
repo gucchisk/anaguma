@@ -33,6 +33,11 @@ var valuesCmd = &cobra.Command{
 		if len(args) < 1 {
 			return errors.New("require badger DB dir")
 		}
+		var err error
+		outputFormat, err = NewFormat(out)
+		if err != nil {
+			return err
+		}
 		return nil;
 	},
 	Run: func(cmd *cobra.Command, args []string) {
@@ -44,9 +49,9 @@ var valuesCmd = &cobra.Command{
 			defer it.Close()
 			for it.Rewind(); it.Valid(); it.Next() {
 				item := it.Item()
-				key := byteToStr(item.Key(), out)
+				key := byteToStr(item.Key(), outputFormat)
 				err := item.Value(func(v []byte) error {
-					value := byteToStr(v, out)
+					value := byteToStr(v, outputFormat)
 					fmt.Printf("-----\nkey: %s\nvalue: %s\n", key, value)
 					return nil
 				})

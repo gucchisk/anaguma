@@ -23,6 +23,7 @@ import (
 )
 
 var out string
+var outputFormat Format
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -31,7 +32,8 @@ var rootCmd = &cobra.Command{
 	Long: "anaguma is a CLI tool to access badger DB",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
-	//	Run: func(cmd *cobra.Command, args []string) { },
+	// Run: func(cmd *cobra.Command, args []string) {
+	// },
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -48,34 +50,59 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
-	rootCmd.PersistentFlags().StringVarP(&out, "out", "o", "ascii", "output format")
+	rootCmd.PersistentFlags().StringVarP(&out, "out", "o", "ascii", "output format [ascii hex base64]")
 }
 
 func initialize() {
 }
 
-func byteToStr(b []byte, out string) string {
-	bytes := bytestring.NewBytes(b)
-	switch out {
+type Format int
+const (
+	Unknown Format = iota
+	Ascii
+	Hex
+	Base64
+)
+
+func NewFormat(format string) (Format, error) {
+	switch format {
+	case "ascii":
+		return Ascii, nil
 	case "hex":
-		return bytes.HexString()
+		return Hex, nil
 	case "base64":
-		return bytes.Base64()
+		return Base64, nil
 	default:
-		return bytes.String()
+		return Unknown, fmt.Errorf("unknown format: %s", format)
 	}
 }
 
-func strToByte(s string, in string) ([]byte, error) {
+func byteToStr(b []byte, out Format) string {
+	bytes := bytestring.NewBytes(b)
+	switch out {
+	case Ascii:
+		return bytes.String()
+	case Hex:
+		return bytes.HexString()
+	case Base64:
+		return bytes.Base64()
+	default:
+		return ""
+	}
+}
+
+func strToByte(s string, in Format) ([]byte, error) {
 	var b bytestring.Bytes
 	var err error
 	switch in {
-	case "hex":
+	case Ascii:
+		b, err = bytestring.NewBytesFrom(s, bytestring.Normal)
+	case Hex:
 		b, err = bytestring.NewBytesFrom(s, bytestring.Hex)
-	case "base64":
+	case Base64:
 		b, err = bytestring.NewBytesFrom(s, bytestring.Base64)
 	default:
-		b, err = bytestring.NewBytesFrom(s, bytestring.Normal)
+		return []byte{}, fmt.Errorf("unknown format")
 	}
 	return b.ByteArray(), err
 }
