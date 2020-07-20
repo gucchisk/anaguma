@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"log"
 	"github.com/spf13/cobra"
-	"github.com/gucchisk/anaguma/db"
 	"github.com/gucchisk/anaguma/common"
 )
 
@@ -33,15 +32,15 @@ var valuesCmd = &cobra.Command{
 		if len(args) < 1 {
 			return errors.New("require badger DB dir")
 		}
-		var err error
-		outputFormat, err = common.NewFormat(out)
-		if err != nil {
-			return err
-		}
 		return nil;
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		err := db.Values(args[0], func(keys, values [][]byte) {
+		err := db.Open(args[0], verbose)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+		err = db.Values(func(keys, values [][]byte) {
 			for i, k := range keys {
 				key := common.ByteToStr(k, outputFormat)
 				value := common.ByteToStr(values[i], outputFormat)

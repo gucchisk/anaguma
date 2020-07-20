@@ -20,11 +20,23 @@ import (
 	"os"
 	"github.com/spf13/cobra"
 	"github.com/gucchisk/anaguma/common"
+	db1 "github.com/gucchisk/anaguma/db/v1"
+	db2 "github.com/gucchisk/anaguma/db/v2"
 )
+
+type DB interface {
+	Open(dir string, log bool) error
+	Close()
+	Get(key []byte, fn func(value []byte) error) error
+	Keys(fn func(keys [][]byte)) error
+	Values(fn func(keys, values [][]byte)) error
+}
 
 var out string
 var outputFormat common.Format
 var badgerVersion uint8
+var db DB
+var verbose bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -35,6 +47,20 @@ var rootCmd = &cobra.Command{
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) {
 	// },
+	PersistentPreRunE: func(cmd *cobra.Command, args []string) error {
+		var err error
+		outputFormat, err = common.NewFormat(out)
+		if err != nil {
+			return err
+		}
+		switch badgerVersion {
+		case 1:
+			db = &db1.DB{}
+		case 2:
+			db = &db2.DB{}
+		}
+		return nil
+	},
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -50,9 +76,10 @@ func init() {
 	cobra.OnInitialize(initialize)
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 	rootCmd.PersistentFlags().StringVarP(&out, "out", "o", "ascii", "output format [ascii hex base64]")
 	rootCmd.PersistentFlags().Uint8VarP(&badgerVersion, "version", "v", 1, "badger version [1, 2]")
+	rootCmd.PersistentFlags().BoolVarP(&verbose, "log", "l", false, "log output")
+
 }
 
 func initialize() {

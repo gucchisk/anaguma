@@ -21,7 +21,6 @@ import (
 	"log"
 	"github.com/spf13/cobra"
 	"github.com/gucchisk/anaguma/common"
-	"github.com/gucchisk/anaguma/db"
 )
 
 // keysCmd represents the keys command
@@ -33,15 +32,15 @@ var keysCmd = &cobra.Command{
 		if len(args) < 1 {
 			return errors.New("require badger DB dir")
 		}
-		var err error
-		outputFormat, err = common.NewFormat(out)
-		if err != nil {
-			return err
-		}
 		return nil;
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		err := db.Keys(args[0], func(keys [][]byte) {
+		err := db.Open(args[0], verbose)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+		err = db.Keys(func(keys [][]byte) {
 			for _, v := range keys {
 				value := common.ByteToStr(v, outputFormat)
 				fmt.Printf("%v\n", value)

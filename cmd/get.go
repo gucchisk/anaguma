@@ -21,7 +21,6 @@ import (
 	"log"
 	// "github.com/dgraph-io/badger"
 	"github.com/spf13/cobra"
-	"github.com/gucchisk/anaguma/db"
 	"github.com/gucchisk/anaguma/common"
 )
 
@@ -38,10 +37,6 @@ var getCmd = &cobra.Command{
 			return errors.New("require key & badger DB dir")
 		}
 		var err error
-		outputFormat, err = common.NewFormat(out)
-		if err != nil {
-			return err
-		}
 		inputFormat, err = common.NewFormat(in)
 		if err != nil {
 			return err
@@ -53,7 +48,12 @@ var getCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = db.Get(args[1], key, func(value []byte) error {
+		err = db.Open(args[1], verbose)
+		if err != nil {
+			log.Fatal(err)
+		}
+		defer db.Close()
+		err = db.Get(key, func(value []byte) error {
 			fmt.Printf("%s\n", common.ByteToStr(value, outputFormat))
 			return nil
 		})

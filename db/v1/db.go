@@ -4,17 +4,29 @@ import (
 	"github.com/dgraph-io/badger"
 )
 
-func View(dir string, fn func(txn *badger.Txn) error) error {
-	db, err := badger.Open(badger.DefaultOptions(dir))
+type DB struct {
+	db *badger.DB
+}
+
+func (d *DB) Open(dir string, log bool) error {
+	opts := badger.DefaultOptions(dir)
+	if !log {
+		opts = opts.WithLogger(nil)
+	}
+	db, err := badger.Open(opts)
 	if err != nil {
 		return err
 	}
-	defer db.Close()
-	return db.View(fn)
+	d.db = db
+	return nil
 }
 
-func Get(dir string, key []byte, fn func(value []byte) error) error {
-	err := View(dir, func(txn *badger.Txn) error {
+func (d *DB) Close() {
+	d.db.Close()
+}
+
+func (d *DB) Get(key []byte, fn func(value []byte) error) error {
+	err := d.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get(key)
 		if err != nil {
 			return err
@@ -24,8 +36,8 @@ func Get(dir string, key []byte, fn func(value []byte) error) error {
 	return err
 }
 
-func Keys(dir string, fn func(keys [][]byte)) error {
-	err := View(dir, func(txn *badger.Txn) error {
+func (d *DB) Keys(fn func(keys [][]byte)) error {
+	err := d.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		opts.PrefetchSize = 10
 		it := txn.NewIterator(opts)
@@ -53,8 +65,8 @@ func Keys(dir string, fn func(keys [][]byte)) error {
 	return err
 }
 
-func Values(dir string, fn func(keys, values [][]byte)) error {
-	err := View(dir, func(txn *badger.Txn) error {
+func (d *DB) Values(fn func(keys, values [][]byte)) error {
+	err := d.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		opts.PrefetchSize = 10
 		it := txn.NewIterator(opts)
@@ -90,4 +102,3 @@ func Values(dir string, fn func(keys, values [][]byte)) error {
 	})
 	return err
 }
-	
