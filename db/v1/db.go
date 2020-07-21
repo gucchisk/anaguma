@@ -36,6 +36,14 @@ func (d *DB) Get(key []byte, fn func(value []byte) error) error {
 	return err
 }
 
+func (d *DB) Set(key, value []byte) error {
+	err := d.db.Update(func(txn *badger.Txn) error {
+		err := txn.Set(key, value)
+		return err
+	})
+	return err
+}
+
 func (d *DB) Keys(fn func(keys [][]byte)) error {
 	err := d.db.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions

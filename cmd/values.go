@@ -46,6 +46,7 @@ var valuesCmd = &cobra.Command{
 				value := common.ByteToStr(values[i], outputFormat)
 				fmt.Printf("----------\nkey: %s\nvalue: %s\n", key, value)
 			}
+			fmt.Println("----------")
 		})
 		if err != nil {
 			log.Fatal(err)

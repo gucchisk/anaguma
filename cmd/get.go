@@ -24,9 +24,6 @@ import (
 	"github.com/gucchisk/anaguma/common"
 )
 
-var in string
-var inputFormat common.Format
-
 // getCmd represents the get command
 var getCmd = &cobra.Command{
 	Use:   "get <key> <dir>",

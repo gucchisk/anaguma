@@ -25,11 +25,6 @@ func (d *DB) Close() {
 	d.db.Close()
 }
 
-// func (d DB) View(dir string, fn func(txn *badger.Txn) error) error {
-// 	defer d.Close()
-// 	return d.db.View(fn)
-// }
-
 func (d *DB) Get(key []byte, fn func(value []byte) error) error {
 	err := d.db.View(func(txn *badger.Txn) error {
 		item, err := txn.Get(key)
@@ -37,6 +32,14 @@ func (d *DB) Get(key []byte, fn func(value []byte) error) error {
 			return err
 		}
 		return item.Value(fn)
+	})
+	return err
+}
+
+func (d *DB) Set(key, value []byte) error {
+	err := d.db.Update(func(txn *badger.Txn) error {
+		err := txn.Set(key, value)
+		return err
 	})
 	return err
 }
