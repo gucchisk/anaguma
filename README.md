@@ -12,7 +12,7 @@ $ go get github.com/gucchisk/anaguma
 ### Usage
 
 ```
-$ anaguma is a CLI tool to access badger DB
+anaguma is a CLI tool to access badger DB
 
 Usage:
   anaguma [command]
@@ -21,6 +21,7 @@ Available Commands:
   get         Get value of key
   help        Help about any command
   keys        Show keys
+  set         Set value of key
   values      Show keys & values
 
 Flags:
