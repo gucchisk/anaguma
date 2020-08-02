@@ -25,10 +25,11 @@ Available Commands:
   values      Show keys & values
 
 Flags:
-  -h, --help            help for anaguma
-  -l, --log             log output
-  -o, --out string      output format [ascii hex base64] (default "ascii")
-  -v, --version uint8   badger version [1, 2] (default 1)
+  -b, --bversion uint8   badger version [1, 2] (default 1)
+  -h, --help             help for anaguma
+  -l, --log              log output
+  -o, --out string       output format [ascii hex base64] (default "ascii")
+  -v, --version          show anaguma version
 
 Use "anaguma [command] --help" for more information about a command.
 ```
