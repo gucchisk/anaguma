@@ -31,12 +31,14 @@ var outputFormat common.Format
 var badgerVersion uint8
 var db common.DB
 var verbose bool
+var showVersion bool
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "anaguma",
 	Short: "badger DB clinet utilities",
 	Long: "anaguma is a CLI tool to access badger DB",
+	// Version: "v0.0.2",
 	// Uncomment the following line if your bare application
 	// has an action associated with it:
 	// Run: func(cmd *cobra.Command, args []string) {
@@ -71,9 +73,10 @@ func init() {
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
 	rootCmd.PersistentFlags().StringVarP(&out, "out", "o", "ascii", "output format [ascii hex base64]")
-	rootCmd.PersistentFlags().Uint8VarP(&badgerVersion, "version", "v", 1, "badger version [1, 2]")
+	rootCmd.PersistentFlags().Uint8VarP(&badgerVersion, "bversion", "b", 1, "badger version [1, 2]")
 	rootCmd.PersistentFlags().BoolVarP(&verbose, "log", "l", false, "log output")
-
+	rootCmd.PersistentFlags().BoolVarP(&showVersion, "version", "v", false, "show anaguma version")
+	rootCmd.Version = version
 }
 
 func initialize() {
