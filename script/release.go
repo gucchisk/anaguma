@@ -1,10 +1,10 @@
 package main
 
 import (
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"regexp"
+	"github.com/gucchisk/anaguma/common"
 )
 
 func main() {
@@ -17,16 +17,7 @@ func main() {
 		panic("invalid version (value: " + versionStr + ")")
 	}
 
-	versionFile := "cmd/version.go"
-
-	b, err := ioutil.ReadFile(versionFile)
-	if err != nil {
-		panic(err)
-	}
-	lines := string(b)
-	re := regexp.MustCompile(`version = .+`)
-	lines = re.ReplaceAllString(lines, `version = "` + versionStr + `"`)
-	err = ioutil.WriteFile(versionFile, []byte(lines), 0755)
+	err = common.UpdateVersion(versionStr)
 	if err != nil {
 		panic(err)
 	}
