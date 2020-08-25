@@ -17,7 +17,7 @@ func main() {
 		panic("invalid version (value: " + versionStr + ")")
 	}
 
-	err = common.UpdateVersion(versionStr)
+	err = common.SetVersion(versionStr)
 	if err != nil {
 		panic(err)
 	}
