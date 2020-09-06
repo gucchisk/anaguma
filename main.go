@@ -1,17 +1,49 @@
 /*
-Copyright © 2020 NAME HERE <EMAIL ADDRESS>
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+anaguma is a CLI tool to access badger DB
 
-    http://www.apache.org/licenses/LICENSE-2.0
+Usage
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+usage:
+
+  anaguma [command] [flag]
+
+Flags for all commands
+
+flags:
+
+  -b, --bversion uint8   badger version [1, 2] (default 1)
+  -h, --help             help for anaguma
+  -l, --log              log output
+  -o, --out string       output format [ascii hex base64] (default "ascii")
+  -v, --version          show anaguma version
+
+Command
+
+get:
+
+  anaguma get <key> <dir> [flag]
+
+  -i, --in string   input key format (default "ascii")
+
+help:
+
+  anaguma help [command] [flag]
+
+keys:
+
+  anaguma keys <dir> [flag]
+
+set:
+
+  anaguma set <key> <value> <dir> [flags]
+
+  -i, --in string   input key & value format (default "ascii")
+
+values:
+
+  anaguma values <dir> [flags]
+
 */
 package main
 
