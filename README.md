@@ -6,7 +6,8 @@ anaguma is command line interface for [BadgerDB](https://github.com/dgraph-io/ba
 ### Install
 
 ```
-$ go get github.com/gucchisk/anaguma
+$ brew tap gucchisk/tap
+$ brew install anaguma
 ```
 
 ### Usage
