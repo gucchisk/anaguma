@@ -1,0 +1,22 @@
+name: Tag
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - ./cmd/version.go
+jobs:
+  test:
+    uses: ./.github/workflows/test.yml
+  tag:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+      - name: create tag
+        run: |
+          TAG=$(go run scripts/version/main.go)
+          git tag $TAG
+          git push origin $TAG
