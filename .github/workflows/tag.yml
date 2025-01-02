@@ -3,7 +3,7 @@ on:
   push:
     branches: [ "main" ]
     paths:
-      - ./cmd/version.go
+      - 'cmd/version.go'
 jobs:
   test:
     uses: ./.github/workflows/test.yml
