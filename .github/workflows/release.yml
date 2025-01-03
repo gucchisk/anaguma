@@ -42,3 +42,4 @@ jobs:
       - uses: softprops/action-gh-release@v2
         with:
           files: "anaguma-${{ env.VERSION }}.darwin.zip"
+          tag_name: "v${{ env.VERSION }}"
