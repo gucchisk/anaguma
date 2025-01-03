@@ -9,6 +9,8 @@ jobs:
     uses: ./.github/workflows/test.yml
   tag:
     runs-on: ubuntu-latest
+    permissions:
+      actions: write
     steps:
       - uses: actions/checkout@v4
       - name: Set up Go
