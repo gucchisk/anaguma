@@ -4,6 +4,9 @@ on:
     branches: [ "main" ]
     paths:
       - 'cmd/version.go'
+permissions:
+  actions: write
+  contents: write
 jobs:
   test:
     uses: ./.github/workflows/test.yml
@@ -23,4 +26,5 @@ jobs:
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git tag $TAG
-          git push https://x-access-token:${GITHUB_PAT}@github.com/${{ github.repository }} $TAG
+          # git push https://x-access-token:${GITHUB_PAT}@github.com/${{ github.repository }} $TAG
+          git push origin $TAG
