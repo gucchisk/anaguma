@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
   package:
-    runs-on: maxos
+    runs-on: macos-latest
     needs: release
     steps:
       - uses: actions/checkout@v4
