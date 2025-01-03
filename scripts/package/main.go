@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"os"
 	"path/filepath"
+	"runtime"
 
 	"github.com/gucchisk/anaguma/common"
 )
@@ -16,7 +17,7 @@ func main() {
 		return
 	}
 	dirname := fmt.Sprintf("anaguma-%s", v)
-	filename := fmt.Sprintf("%s.zip", dirname)
+	filename := fmt.Sprintf("%s.%s.zip", dirname, runtime.GOOS)
 	fmt.Printf("file: %s\n", filename)
 	zipFile, err := os.Create(filename)
 	if err != nil {

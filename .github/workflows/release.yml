@@ -38,7 +38,7 @@ jobs:
       - run: |
           make build
           make pack
-          echo "TAG=$(go run scripts/version/main.go)" >> $GITHUB_ENV
+          echo "VERSION=$(go run scripts/version/main.go | tr -d v)" >> $GITHUB_ENV
       - uses: softprops/action-gh-release@v2
         with:
-          files: ${{ env.TAG }}
+          files: "anaguma-${{ env.VERSION }}.darwin.zip"
