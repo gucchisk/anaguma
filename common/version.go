@@ -2,25 +2,25 @@ package common
 
 import (
 	"fmt"
-	"io/ioutil"
+	"os"
 	"regexp"
 )
 
 const versionFile = "cmd/version.go"
 
 func SetVersion(version string) error {
-	b, err := ioutil.ReadFile(versionFile)
+	b, err := os.ReadFile(versionFile)
 	if err != nil {
 		return err
 	}
 	lines := string(b)
 	re := regexp.MustCompile(`version = .+`)
 	lines = re.ReplaceAllString(lines, `version = "`+version+`"`)
-	return ioutil.WriteFile(versionFile, []byte(lines), 0755)
+	return os.WriteFile(versionFile, []byte(lines), 0755)
 }
 
 func GetVersion() (string, error) {
-	b, err := ioutil.ReadFile(versionFile)
+	b, err := os.ReadFile(versionFile)
 	if err != nil {
 		return "", err
 	}

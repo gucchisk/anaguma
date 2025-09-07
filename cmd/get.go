@@ -18,7 +18,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"log"
 	// "github.com/dgraph-io/badger"
 	"github.com/spf13/cobra"
 	"github.com/gucchisk/anaguma/common"
@@ -38,25 +37,27 @@ var getCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		return nil;
+		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		key, err := common.StrToByte(args[0], inputFormat)
 		if err != nil {
-			log.Fatal(err)
+			return fmt.Errorf("failed to convert key: %w", err)
 		}
-		err = db.Open(args[1], verbose)
-		if err != nil {
-			log.Fatal(err)
+
+		if err := database.Open(args[1], verbose); err != nil {
+			return fmt.Errorf("failed to open database at %s: %w", args[1], err)
 		}
-		defer db.Close()
-		err = db.Get(key, func(value []byte) error {
+		defer database.Close()
+
+		if err := database.Get(key, func(value []byte) error {
 			fmt.Printf("%s\n", common.ByteToStr(value, outputFormat))
 			return nil
-		})
-		if err != nil {
-			log.Fatal(err)
+		}); err != nil {
+			return fmt.Errorf("failed to get value for key: %w", err)
 		}
+
+		return nil
 	},
 }
 

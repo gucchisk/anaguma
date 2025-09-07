@@ -20,8 +20,7 @@ import (
 	"os"
 	"github.com/spf13/cobra"
 	"github.com/gucchisk/anaguma/common"
-	db1 "github.com/gucchisk/anaguma/db/v1"
-	db2 "github.com/gucchisk/anaguma/db/v2"
+	"github.com/gucchisk/anaguma/db"
 )
 
 var in string
@@ -29,7 +28,7 @@ var inputFormat common.Format
 var out string
 var outputFormat common.Format
 var badgerVersion uint8
-var db common.DB
+var database common.DB
 var verbose bool
 var showVersion bool
 
@@ -49,11 +48,9 @@ var rootCmd = &cobra.Command{
 		if err != nil {
 			return err
 		}
-		switch badgerVersion {
-		case 1:
-			db = &db1.DB{}
-		case 2:
-			db = &db2.DB{}
+		database, err = db.NewUnifiedDB(badgerVersion)
+		if err != nil {
+			return fmt.Errorf("failed to create database instance: %w", err)
 		}
 		return nil
 	},

@@ -30,7 +30,7 @@ func TestRootCmd(t *testing.T) {
 	}
 	result_help_flag := out.String()
 	out.Reset()
-	
+
 	if result != result_help {
 		t.Fatalf("not same result\ncmd:\n%s\nhelp:\n%s\n", result, result_help)
 	}

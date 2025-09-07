@@ -18,7 +18,6 @@ package cmd
 import (
 	"errors"
 	"fmt"
-	"log"
 	"github.com/spf13/cobra"
 	"github.com/gucchisk/anaguma/common"
 )
@@ -32,25 +31,26 @@ var valuesCmd = &cobra.Command{
 		if len(args) < 1 {
 			return errors.New("require badger DB dir")
 		}
-		return nil;
+		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
-		err := db.Open(args[0], verbose)
-		if err != nil {
-			log.Fatal(err)
+	RunE: func(cmd *cobra.Command, args []string) error {
+		if err := database.Open(args[0], verbose); err != nil {
+			return fmt.Errorf("failed to open database at %s: %w", args[0], err)
 		}
-		defer db.Close()
-		err = db.Values(func(keys, values [][]byte) {
+		defer database.Close()
+
+		if err := database.Values(func(keys, values [][]byte) {
 			for i, k := range keys {
 				key := common.ByteToStr(k, outputFormat)
 				value := common.ByteToStr(values[i], outputFormat)
 				fmt.Printf("----------\nkey: %s\nvalue: %s\n", key, value)
 			}
 			fmt.Println("----------")
-		})
-		if err != nil {
-			log.Fatal(err)
+		}); err != nil {
+			return fmt.Errorf("failed to retrieve key-value pairs: %w", err)
 		}
+
+		return nil
 	},
 }
 

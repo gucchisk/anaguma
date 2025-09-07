@@ -17,7 +17,7 @@ package cmd
 
 import (
 	"errors"
-	"log"
+	"fmt"
 	"github.com/spf13/cobra"
 	"github.com/gucchisk/anaguma/common"
 )
@@ -38,24 +38,27 @@ var setCmd = &cobra.Command{
 		}
 		return nil
 	},
-	Run: func(cmd *cobra.Command, args []string) {
+	RunE: func(cmd *cobra.Command, args []string) error {
 		key, err := common.StrToByte(args[0], inputFormat)
 		if err != nil {
-			log.Fatal(err)
+			return fmt.Errorf("failed to convert key: %w", err)
 		}
+
 		value, err := common.StrToByte(args[1], inputFormat)
 		if err != nil {
-			log.Fatal(err)
+			return fmt.Errorf("failed to convert value: %w", err)
 		}
-		err = db.Open(args[2], verbose)
-		if err != nil {
-			log.Fatal(err)
+
+		if err := database.Open(args[2], verbose); err != nil {
+			return fmt.Errorf("failed to open database at %s: %w", args[2], err)
 		}
-		defer db.Close()
-		err = db.Set(key, value)
-		if err != nil {
-			log.Fatal(err)
+		defer database.Close()
+
+		if err := database.Set(key, value); err != nil {
+			return fmt.Errorf("failed to set key-value pair: %w", err)
 		}
+
+		return nil
 	},
 }
 
